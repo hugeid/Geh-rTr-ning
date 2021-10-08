@@ -1,6 +1,13 @@
-from playsound import playsound
 import os
+import random
 
-print(os.listdir("soundbank"))
+
+from playsound import playsound
+
+
+notes = os.listdir("soundbank")
 cwd = os.getcwd()
-playsound(f"{cwd}/soundbank/C4vL.wav")
+note = random.choice(notes)
+print(f"Playing note {note}")
+playsound(f"{cwd}/soundbank/{note}")
+
