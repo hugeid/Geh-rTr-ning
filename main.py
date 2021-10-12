@@ -6,62 +6,83 @@ import random
 from playsound import playsound
 
 
-notes = os.listdir("soundbank")
-cwd = os.getcwd()
-note = random.choice(notes)
-#print(f"Playing note {note}")
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    def disable(self):
+        self.HEADER = ''
+        self.OKBLUE = ''
+        self.OKGREEN = ''
+        self.WARNING = ''
+        self.FAIL = ''
+        self.ENDC = ''
 
 def splash():
-    print("""~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-              Biathlon
+    color_print("""
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            Gehörsträning    
               
-         a hit or miss game
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""")
+            Ett musikspel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~""", bcolors.OKBLUE)
 
 def main():
+    splash()
     while True:
-        if menu("Välj ett alternativ", "Val: ", {"p": "play", "q": "quit"}) == "p":
-            notes = os.listdir("soundbank")
-            correct = random_note(notes) 
-            alternatives = make_alternatives(notes, correct)
-            runda(notes, correct, alternatives)
+        if menu("Välj ett alternativ", "Val: ", {"p": "play", "q": "quit"}) in ("p", "play"):
+            rounds = int(input("Antal omgångar: "))
+            points = game(rounds)
+            print(f"Du fick {points} poäng.\n")
         else:
             break
     print("Hejdå!")
     #os.system('cls')
 
+def game(rounds):
+    points = 0
+    for x in range(1, rounds+1):
+        notes = [x.strip(".mp3") for x in os.listdir("octave4")]
+        correct = random_note(notes) 
+        alternatives = make_alternatives(notes, correct)
+        points += runda(x, rounds, notes, correct, alternatives)
+    return points
 
-def runda(notes, correct, alternatives):
+def runda(current, end, notes, correct, alternatives):
     play_sound(notes, correct)
-    print(f"\nCorrect: {correct}\n")
+    print(f"ANSWER: {correct}")
 
-    answer = menu("Välj ett alternativ", "Val: ", alternatives)
-    if guess(alternatives[answer], correct):
-        print("Korrekt!")
+    answer = menu(f"({current}/{end})\nSvarsalternativ:", "Svar: ", alternatives)
+    if guess(answer, correct, alternatives):
+        color_print("Korrekt", bcolors.OKGREEN)
+        return 1
     elif answer == "r":
-        runda(notes, correct, alternatives)
+        return runda(current, end, notes, correct, alternatives)
     else:
-        print(f"\nFel! Rätt svar var {correct}")
+        color_print(f"Fel! Rätt svar var {correct}", bcolors.FAIL)
+        return 0
+    
 
 def make_alternatives(notes, correct, length=4):
-    temp = str(random.randint(1, length))
-    temp_dict = {}
-    for x in range(1, length+1):
-        if str(x) != temp:
-            note = random_note(notes)
-            while note in temp_dict:
-                note = random_note(notes)
-            temp_dict[str(x)] = random_note(notes)
-        else:
-            temp_dict[temp] = correct
-    temp_dict["r"] = "Spela om"
-    return temp_dict
-
+    notes = notes.copy()
+    notes.remove(correct)
+    alts = [correct]
+    for _ in range(length-1):
+        temp = random_note(notes)
+        notes.remove(temp)
+        alts.append(temp)
+    random.shuffle(alts)
+    alt_dict =  indexify(alts)
+    alt_dict["r"]  = "Spela om"
+    return alt_dict
 
 def play_sound(notes, note):
     cwd = os.getcwd()
-    playsound(f"{cwd}/soundbank/{note}")
+    playsound(f"{cwd}/octave4/{note}.mp3")
     return note
 
 def random_note(notes):
@@ -70,15 +91,23 @@ def random_note(notes):
 def menu(desc, prompt, options):
     print(f"{desc}\n")
     for key, value in options.items():
-        print(f"{key}. {value}")
+        print(f"    {key}) {value}")
+    print()
     while True:
         a = input(prompt)
-        if a in options:
+        if a in options or a in options.values():
             return a
+    
 
+def guess(guess, correct, alternatives):
 
-def guess(guess, correct):
-    return guess == correct
+    return guess == correct or (guess in alternatives and alternatives[guess] == correct)
+
+def color_print(text, color):
+    print(f"\n{color}{text}{bcolors.ENDC}")
+
+def indexify(lst):
+    return {f"{i+1}": e for i, e in enumerate(lst)}
 
 if __name__=="__main__":
     main()
