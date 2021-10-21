@@ -6,7 +6,6 @@ import random
 from playsound import playsound
 
 
-
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -23,6 +22,7 @@ class bcolors:
         self.FAIL = ''
         self.ENDC = ''
 
+
 class Interval:
 
     def __init__(self, start, end):
@@ -37,13 +37,12 @@ class Interval:
         elif isinstance(other, str):
             return str(self) == other
         elif isinstance(other, Interval):
-            return self.start == other.start and self.end == other.end
+            return self.value == other.value
         return False
 
     def __str__(self):
         return str(self.value)
-    def __repr__(self):
-        return f"Interval<start={self.start}, end={self.end}, value={self.value}>"
+
 
     def get_value(self):
         notes = ["a", "a#", "b", "c", "c#", "d", "d#", "e", "f", "f#", "g", "g#"]
@@ -66,8 +65,13 @@ class Interval:
         alt_dict["r"] = "Spela om"
         return alt_dict
 
-    def sort(self):
-        pass
+    def sort(self, reverse = False):
+        start = self.start
+        end = self.end
+        if (not reverse and start > end) or (reverse and start < end):
+            self.start = end
+            self.end = start
+        
 
 
 
