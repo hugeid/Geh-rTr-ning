@@ -34,10 +34,13 @@ def splash():
 def main():
     splash()
     while True:
-        if menu("Välj ett alternativ", "Val: ", {"p": "play", "q": "quit"}) in ("p", "play"):
+        svar = menu("Välj ett alternativ", "Val: ", {"p": "play", "q": "quit", "i": "intervall"})
+        if svar  in ("p", "play"):
             rounds = int(input("Antal omgångar: "))
             points = game(rounds)
             print(f"Du fick {points} poäng.\n")
+        elif svar in ("i", "intervall"):
+            pass
         else:
             break
     print("Hejdå!")
@@ -45,8 +48,9 @@ def main():
 
 def game(rounds):
     points = 0
-    for x in range(1, rounds+1):
-        notes = [x.strip(".mp3") for x in os.listdir("octave4")]
+    notes = [x.strip(".mp3") for x in os.listdir("octave4")]
+
+    for _ in range(1, rounds+1):
         correct = random_note(notes) 
         alternatives = make_alternatives(notes, correct)
         points += runda(x, rounds, notes, correct, alternatives)

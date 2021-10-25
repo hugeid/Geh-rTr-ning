@@ -23,7 +23,6 @@ class bcolors:
         self.ENDC = ''
 
 
-class Interval:
 
     def __init__(self, start, end):
         self.start = start
@@ -154,7 +153,7 @@ def game(rounds, intervall=False):
 
 def runda(current, end, notes, correct, alternatives):
     correct.play()
-    print(f"ANSWER: {correct}")
+#    print(f"ANSWER: {correct}")
 
     answer = menu(f"({current}/{end})\nSvarsalternativ:", "Svar: ", alternatives)
     if guess(answer, correct, alternatives):
